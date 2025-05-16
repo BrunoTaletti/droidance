@@ -1,0 +1,11 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="88" height="88">
+	<title>Novo Projeto</title>
+	<defs>
+		<image  width="58" height="77" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADoAAABNCAMAAADAQodjAAAAAXNSR0IB2cksfwAAAWVQTFRF////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////JBh0kQAAAHd0Uk5TAP8pLzP+/fz7WmhlF3N3yEk5OoqMhJuWl54lIyZE6ewCA+sbFlZO91Du+VJXEQ0Qtp+a2t/h49nd59bbHO/w9kESiEYhOKeTIJmSnUxLQx92e4eAHnKChpSQf3QEHWFmVVEicG91w9BtYMxuGs/R1dTS+Njm5OJuAg1LAAAChklEQVR4nO3Xy08TQRgA8O8rbfFFOGAPGJFNCSo+ovFkRJBYSQ1RLoaTejCKqMQH8f/wHQWNeNCjJho1GlIhosF41fhAIfiAyKHUhKC2tHWc3dpldme6nc5K8MAkTXdmv99+89idbRFEBS2V38IYa5C41ZNWpkUpKerLEUYLmT3qT6pR8bjNDiHGFSmX2CVdGBdH5tEu6aJfynTxTzW6BBEn5WkpIMb+0rKYvLNmxqUTyjQQNb4DdNTEg98TErQciWeU0opR9korvsol9iY5WvlFjvoT+uJoGJ0yaXDECQSHtTFIQdWQUdPXtXpIssM0qBimzWmin5UfJbPSoFXwgaWrB01a8z4PXQPvWLr2LXsy2+pYMtMEsO6NMmUeOlnqm84EaSWIrzJNG3A8vRy+jctSqTziDitQF1lZWiB3Qdmxuqeb6E5Fn/iXbNhmTCygC54Gplkww6JbovZ59qjOPCqOF0jrnxWYddlY9mhbv4U2DBCceamKqNdDavtoHwlh3ts+2IqhXjYsx+0fivBtG7ExwtYrPxlfwZTXsl3ofbbTRgz32JoyibXP/4iGH/N0JzY9UqRNuOuhrUkfrj2Mo8btv/uBBOXGaqxr831bmDbC0+Z7Irq+ChGwP+qYdc9tgJakv2/7kx0wWdoTxh93RbvE3ls83XcT+DL3dP8d0oJ4A8TT5EgJ15ot+roq0gPdyjQUAb7k++1PL3ew23msDvTQdeWsJVPM9uRIWxFfv2DpkS5ZevgaW6P0aKfsWI9dsdH2y9B+SYoeF4VB/v85tLRdVaYnLirTkxfmgp46r0w7zplHdAOaeX9I0NNn2GDLLfl/0vKKesCnDb1bis4WSnOdn6dq9A9RnOjhGEQ4KAAAAABJRU5ErkJggg=="/>
+	</defs>
+	<style>
+		.s0 { fill: #000000 } 
+	</style>
+	<path id="Background" fill-rule="evenodd" class="s0" d="m9 2h69c4.4 0 8 3.6 8 8v68c0 4.4-3.6 8-8 8h-69c-4.4 0-8-3.6-8-8v-68c0-4.4 3.6-8 8-8z"/>
+	<use id="Layer 1" href="#img1" x="15" y="5"/>
+</svg>

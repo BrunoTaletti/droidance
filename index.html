@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
+  <title>DROID DANCE</title>
+  <style>
+    :root {
+      --cor-primaria: #ff6a00;
+      --cor-secundaria: #ee0979;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+      height: 100%;
+      font-family: 'Arial', sans-serif;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: clamp(14px, 2vw, 18px);
+      background: linear-gradient(45deg, var(--cor-primaria), var(--cor-secundaria));
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: 0 4px 15px rgba(238, 9, 121, 0.4);
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    #startBtn {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
+    }
+
+    #sideMenu {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 15px;
+      border-radius: 12px;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: none;
+      max-width: 250px;
+      backdrop-filter: blur(5px);
+    }
+
+    .effects-section {
+      margin-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 10px;
+    }
+
+    .effects-section label {
+      display: block;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    .logo{
+      width: 100%;
+    }
+
+    .t-center{
+      text-align: center;
+    }
+
+    #donatePopup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.95);
+      padding: 25px;
+      border-radius: 15px;
+      color: white;
+      text-align: center;
+      border: 2px solid var(--cor-primaria);
+      display: none;
+      z-index: 200;
+      max-width: 90%;
+    }
+
+    #waveform {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <button id="startBtn" onclick="startCapture()">😎 COMEÇAR A FESTA 😎</button>
+  
+  <div id="sideMenu">
+    <div id="musicData">
+      <img src="./logo-lateral-negativo.png" class="logo" alt="logo-lateral-negativo">
+    </div>
+    <div class="effects-section">
+      <label><input type="checkbox" id="rgbStars"> Estrelas Arco-Íris</label>
+      <label><input type="checkbox" id="colorPulse"> Pulsação de Cores</label>
+      <label><input type="checkbox" id="showWaveform"> Visualizador de Áudio</label>
+    </div>
+    <div class="effects-section t-center">Feito com 💛 por Bruno Taletti.</div>
+  </div>
+
+  <div id="donatePopup">
+    <div id="popupContent"></div>
+    <button onclick="closePopup()" style="margin-top:15px">Fechar</button>
+  </div>
+
+  <script>
+    // Configurações principais
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const FPS = 20;
+    const IDLE_TIMEOUT = 4000;
+
+    // Configuração de frames
+    const totalFrames = 80;
+    const framePrefix = 'ezgif-frame-';
+    const FRAMES = Array.from({length: totalFrames}, (_, i) => 
+      `frames/${framePrefix}${String(i+1).padStart(3, '0')}.jpg`);
+
+    // Variáveis de estado
+    let currentFrame = 0;
+    let lastBeatTime = Date.now();
+    let audioContext, analyser, dataArray;
+    let stars = [];
+    let bassIntensity = 0;
+    let starBaseSpeed = 0.5; // Velocidade base das estrelas
+
+    // Pré-carregamento de imagens
+    function preloadFrames() {
+      FRAMES.forEach(src => {
+        new Image().src = src;
+      });
+    }
+    preloadFrames();
+
+    // Sistema de animação
+    function initAnimation() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      // Configura estrelas
+      stars = Array.from({length: 100}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3,
+        speed: Math.random() * 0.5 + starBaseSpeed,
+        hue: Math.random() * 360
+      }));
+
+      // Loop de animação
+      setInterval(() => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawStars();
+        drawDroid();
+        if(document.getElementById('showWaveform').checked) drawWaveform();
+      }, 1000/FPS);
+    }
+
+    // Desenho do Droid
+    function drawDroid() {
+      const img = new Image();
+      img.src = FRAMES[shouldIdle() ? 0 : currentFrame];
+      
+      img.onload = () => {
+        const scale = 0.8 + bassIntensity * 0.3;
+        const rotation = bassIntensity * (Math.PI/24) * Math.sin(Date.now()/200);
+        
+        ctx.save();
+        ctx.translate(canvas.width/2, canvas.height/2);
+        ctx.rotate(rotation);
+        ctx.drawImage(img, -img.width*scale/2, -img.height*scale/2, img.width*scale, img.height*scale);
+        ctx.restore();
+      };
+
+      if(!shouldIdle()) {
+        currentFrame = (currentFrame + 1) % totalFrames;
+      }
+    }
+
+    // Sistema de estrelas sincronizado com a batida
+    function drawStars() {
+        // Fator de intensidade aumentado (de 0.5 a 3.5)
+        const intensityMultiplier = 0.5 + (bassIntensity * 3); 
+        
+        stars.forEach(star => {
+            // Movimento horizontal mais rápido e com variação
+            star.x -= star.speed * intensityMultiplier * (1 + Math.sin(Date.now()/500)*0.3);
+            
+            // Reposicionamento com efeito mais dinâmico
+            if(star.x < -star.size * 2) {
+                star.x = canvas.width + star.size;
+                star.y = Math.random() * canvas.height;
+                star.size = Math.random() * 3; // Tamanho muda ao reaparecer
+            }
+
+            // Efeito de cor mais vibrante
+            const useRGB = document.getElementById('rgbStars').checked;
+            const pulseEffect = document.getElementById('colorPulse').checked;
+            
+            let hue = star.hue;
+            if(useRGB) {
+                hue = (star.hue += 0.7) % 360;
+                if(pulseEffect) {
+                    hue = (hue + bassIntensity * 50) % 360;
+                }
+            }
+            
+            ctx.fillStyle = useRGB ? 
+                `hsl(${hue}, 100%, ${70 + (bassIntensity * 20)}%)` : 
+                `rgba(255, 255, 255, ${0.8 + bassIntensity * 0.5})`;
+            
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size * (1 + bassIntensity * 0.5), 0, Math.PI*2);
+            ctx.fill();
+        });
+    }
+
+    // Visualizador de áudio
+    function drawWaveform() {
+      if(!dataArray) return;
+      
+      ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + bassIntensity*0.7})`;
+      for(let i = 0; i < dataArray.length; i += 4) {
+        const height = dataArray[i] / 255 * canvas.height/4;
+        ctx.fillRect(i * 4, canvas.height - height, 3, height);
+      }
+    }
+
+    // Controle de áudio
+    async function startCapture() {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+          audio: true
+        });
+        
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('sideMenu').style.display = 'block';
+        
+        setupAudioAnalysis(stream);
+        initAnimation();
+        initDonationTimer();
+      } catch(err) {
+        alert('Erro ao iniciar: ' + err.message);
+      }
+    }
+
+    function setupAudioAnalysis(stream) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      analyzeAudio();
+    }
+
+    // Análise de áudio com sensibilidade aumentada para o bass
+    function analyzeAudio() {
+        analyser.getByteFrequencyData(dataArray);
+        
+        // Foco maior nas frequências baixas (0-150Hz)
+        const bass = dataArray.slice(0, 20).reduce((a, b) => a + b) / 20;
+        const lowMid = dataArray.slice(20, 40).reduce((a, b) => a + b) / 20;
+        
+        // Cálculo mais sensível da intensidade
+        bassIntensity = Math.min((bass * 1.5 + lowMid * 0.5) / 255, 1.5); // Permite ultrapassar 1
+        
+        if(bass > 30) lastBeatTime = Date.now();
+        requestAnimationFrame(analyzeAudio);
+    }
+
+    // Popup de doação
+    async function showDonationPopup() {
+      try {
+        const response = await fetch('http://ip-api.com/json/?fields=countryCode');
+        const {country} = await response.json();
+
+        const isBrazil = country === 'BR';
+        document.getElementById('popupContent').innerHTML = isBrazil ? 
+          `<img src="pixQR.png" width="150">
+           <p>Chave Pix: 43621554000119</p>` :
+          `<p>Help keep me dancing!<br>International donations:</p>`;
+      } catch {
+        document.getElementById('popupContent').innerHTML = 
+          `<p>Ajude o droid a continuar dançando!</p>`;
+      }
+      document.getElementById('donatePopup').style.display = 'block';
+    }
+
+    // Funções auxiliares
+    function closePopup() {
+      document.getElementById('donatePopup').style.display = 'none';
+    }
+
+    function shouldIdle() {
+      return Date.now() - lastBeatTime > IDLE_TIMEOUT;
+    }
+
+    function initDonationTimer() {
+      setTimeout(showDonationPopup, 2000);
+    }
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
