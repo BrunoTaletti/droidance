@@ -53,6 +53,12 @@
     .donate-btn {
       animation: pulse 2s infinite;
     }
+
+    code {
+      white-space: pre-wrap; /* Permite quebra de linha */
+      word-break: break-all; /* Quebra palavras longas */
+      overflow-wrap: break-word; /* Alternativa para word-break */
+    }
     
     @keyframes pulse {
       0% { transform: scale(1); }
@@ -411,13 +417,13 @@
       <h3 class="text-2xl font-bold mb-6 text-center gradient-text">PIX DONATION</h3>
       
       <div class="flex justify-center mb-6">
-        <img src="https://via.placeholder.com/200" alt="PIX QR Code" class="border-2 border-green-500 rounded">
+        <img src="./pixQR.png" alt="PIX QR Code" class="border-2 border-green-500 rounded">
       </div>
       
       <div class="mb-6">
         <label class="block text-gray-300 mb-2">Chave PIX</label>
         <div class="bg-gray-800 rounded p-3 flex items-center justify-between">
-          <code class="text-green-400">43621554000119</code>
+          <code class="text-green-400">00020126360014BR.GOV.BCB.PIX0114436215540001195204000053039865802BR5911DROID DANCE6007Itapema62130509DROIDANCE6304B028</code>
           <button onclick="copyPixKey()" class="text-gray-400 hover:text-white">
             <i class="fas fa-copy"></i>
           </button>
@@ -461,7 +467,7 @@
     }
     
     function copyPixKey() {
-      navigator.clipboard.writeText('43621554000119');
+      navigator.clipboard.writeText('00020126360014BR.GOV.BCB.PIX0114436215540001195204000053039865802BR5911DROID DANCE6007Itapema62130509DROIDANCE6304B028');
       alert('PIX key copied to clipboard!');
     }
     
